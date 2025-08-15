@@ -1,12 +1,11 @@
 # =============================================================================
 # FICHIER .HTACCESS - LA FORGE DU LIVRE
-# Configuration pour serveur de production Apache (racine du projet)
+# Configuration simplifiée pour serveur de production Apache
 # =============================================================================
 
 # -----------------------------------------------------------------------------
 # REDIRECTION HTTPS OBLIGATOIRE
 # -----------------------------------------------------------------------------
-# Force la redirection vers HTTPS pour toutes les requêtes HTTP
 RewriteEngine On
 RewriteCond %{HTTPS} off
 RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
@@ -15,148 +14,10 @@ RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 # REDIRECTION VERS LE DOSSIER PUBLIC
 # -----------------------------------------------------------------------------
 # Redirige toutes les requêtes vers le dossier public/
-# Sauf si le fichier/dossier existe déjà dans public/
 RewriteCond %{REQUEST_URI} !^/public/
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.*)$ /public/$1 [L]
-
-# -----------------------------------------------------------------------------
-# SÉCURITÉ - PROTECTION DES FICHIERS SENSIBLES
-# -----------------------------------------------------------------------------
-# Empêche l'accès aux fichiers de configuration
-<Files "*.env">
-    Require all denied
-</Files>
-
-<Files "*.env.local">
-    Require all denied
-</Files>
-
-<Files "*.env.test">
-    Require all denied
-</Files>
-
-<Files "*.env.prod">
-    Require all denied
-</Files>
-
-# Empêche l'accès aux fichiers de configuration Symfony
-<Files "*.yaml">
-    Require all denied
-</Files>
-
-<Files "*.yml">
-    Require all denied
-</Files>
-
-<Files "*.yaml.dist">
-    Require all denied
-</Files>
-
-<Files "*.yml.dist">
-    Require all denied
-</Files>
-
-# Empêche l'accès aux fichiers de cache et logs
-<FilesMatch "\.(log|cache|lock)$">
-    Require all denied
-</FilesMatch>
-
-# Empêche l'accès aux dossiers sensibles
-RedirectMatch 403 ^/var/?$
-RedirectMatch 403 ^/vendor/?$
-RedirectMatch 403 ^/config/?$
-RedirectMatch 403 ^/src/?$
-RedirectMatch 403 ^/migrations/?$
-RedirectMatch 403 ^/tests/?$
-RedirectMatch 403 ^/docs/?$
-RedirectMatch 403 ^/bin/?$
-
-# -----------------------------------------------------------------------------
-# SÉCURITÉ - EN-TÊTES HTTP
-# -----------------------------------------------------------------------------
-# Protection contre le clickjacking
-Header always append X-Frame-Options SAMEORIGIN
-
-# Protection contre le MIME type sniffing
-Header always set X-Content-Type-Options nosniff
-
-# Protection XSS
-Header always set X-XSS-Protection "1; mode=block"
-
-# Référer Policy pour la sécurité
-Header always set Referrer-Policy "strict-origin-when-cross-origin"
-
-# Content Security Policy basique
-Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self';"
-
-# -----------------------------------------------------------------------------
-# OPTIMISATIONS PERFORMANCE
-# -----------------------------------------------------------------------------
-# Compression GZIP pour les fichiers textuels
-<IfModule mod_deflate.c>
-    AddOutputFilterByType DEFLATE text/plain
-    AddOutputFilterByType DEFLATE text/html
-    AddOutputFilterByType DEFLATE text/xml
-    AddOutputFilterByType DEFLATE text/css
-    AddOutputFilterByType DEFLATE application/xml
-    AddOutputFilterByType DEFLATE application/xhtml+xml
-    AddOutputFilterByType DEFLATE application/rss+xml
-    AddOutputFilterByType DEFLATE application/javascript
-    AddOutputFilterByType DEFLATE application/x-javascript
-    AddOutputFilterByType DEFLATE application/json
-</IfModule>
-
-# Cache des navigateurs pour les assets statiques
-<IfModule mod_expires.c>
-    ExpiresActive On
-    
-    # Images
-    ExpiresByType image/jpg "access plus 1 month"
-    ExpiresByType image/jpeg "access plus 1 month"
-    ExpiresByType image/gif "access plus 1 month"
-    ExpiresByType image/png "access plus 1 month"
-    ExpiresByType image/webp "access plus 1 month"
-    
-    # CSS et JavaScript
-    ExpiresByType text/css "access plus 1 month"
-    ExpiresByType application/javascript "access plus 1 month"
-    ExpiresByType text/javascript "access plus 1 month"
-    
-    # Fonts
-    ExpiresByType font/woff "access plus 1 year"
-    ExpiresByType font/woff2 "access plus 1 year"
-    ExpiresByType application/font-woff "access plus 1 year"
-    ExpiresByType application/font-woff2 "access plus 1 year"
-    
-    # HTML - pas de cache pour éviter les problèmes
-    ExpiresByType text/html "access plus 0 seconds"
-</IfModule>
-
-# -----------------------------------------------------------------------------
-# GESTION DES ERREURS
-# -----------------------------------------------------------------------------
-# Redirection des erreurs 404 vers le dossier public
-ErrorDocument 404 /public/index.php
-
-# -----------------------------------------------------------------------------
-# PROTECTION CONTRE LES ATTAQUES
-# -----------------------------------------------------------------------------
-# Limite la taille des requêtes POST
-LimitRequestBody 10485760
-
-# Désactive l'affichage du serveur
-ServerTokens Prod
-ServerSignature Off
-
-# -----------------------------------------------------------------------------
-# RÈGLES SPÉCIFIQUES SYMFONY
-# -----------------------------------------------------------------------------
-# Permet l'accès aux assets publics dans le dossier public/
-<FilesMatch "\.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$">
-    Require all granted
-</FilesMatch>
 
 # -----------------------------------------------------------------------------
 # FIN DU FICHIER .HTACCESS
