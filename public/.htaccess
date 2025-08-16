@@ -1,6 +1,6 @@
 # =============================================================================
 # FICHIER .HTACCESS - LA FORGE DU LIVRE
-# Configuration simplifiée pour serveur de production Apache
+# Configuration  pour serveur de production Apache
 # =============================================================================
 
 # -----------------------------------------------------------------------------
@@ -11,13 +11,12 @@ RewriteCond %{HTTPS} off
 RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
 # -----------------------------------------------------------------------------
-# REDIRECTION VERS LE DOSSIER PUBLIC
+# RÈGLES SYMFONY - POINT D'ENTRÉE PRINCIPAL
 # -----------------------------------------------------------------------------
-# Redirige toutes les requêtes vers le dossier public/
-RewriteCond %{REQUEST_URI} !^/public/
+# Redirige toutes les requêtes vers index.php sauf pour les fichiers existants
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.*)$ /public/$1 [L]
+RewriteRule ^(.*)$ index.php [QSA,L]
 
 # -----------------------------------------------------------------------------
 # FIN DU FICHIER .HTACCESS
