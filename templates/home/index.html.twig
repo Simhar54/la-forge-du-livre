@@ -31,7 +31,7 @@
                         <a class="nav-link" href="#contact">📧 Contact</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link btn btn-custom ms-2" href="#create-story">✍️ Créer une histoire</a>
+                        <a class="nav-link btn btn-custom ms-2" href="{{ path('app_story_index') }}">✍️ Mes Histoires</a>
                     </li>
                 </ul>
             </div>
@@ -46,7 +46,7 @@
                     <h1 class="hero-title">La Forge du Livre</h1>
                     <p class="hero-subtitle">Créez des histoires interactives captivantes où chaque choix compte</p>
                     <div class="d-flex justify-content-center gap-3 flex-wrap">
-                        <a href="#create-story" class="btn btn-custom btn-lg">
+                        <a href="{{ path('app_story_index') }}" class="btn btn-custom btn-lg">
                             🚀 Commencer à créer
                         </a>
                         <a href="#features" class="btn btn-outline-light btn-lg">
@@ -143,7 +143,7 @@
         <div class="container text-center">
             <h2 class="text-warning mb-4">🚀 Prêt à créer votre première histoire ?</h2>
             <p class="lead mb-4">Rejoignez la communauté des auteurs de La Forge du Livre</p>
-            <a href="#" class="btn btn-custom btn-lg">
+            <a href="{{ path('app_story_index') }}" class="btn btn-custom btn-lg">
                 ✍️ Commencer maintenant
             </a>
         </div>

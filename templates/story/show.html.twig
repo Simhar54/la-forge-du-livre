@@ -1,0 +1,101 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ story.title }}{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>{{ story.title }}</h1>
+                <div>
+                    <a href="{{ path('app_story_edit', {'id': story.id}) }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-edit"></i> Modifier
+                    </a>
+                    <a href="{{ path('app_story_index') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-arrow-left"></i> Retour
+                    </a>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    {% if story.description %}
+                        <p class="lead">{{ story.description }}</p>
+                    {% endif %}
+                    
+                    <div class="d-flex align-items-center">
+                        <span class="badge {{ story.isPublished ? 'bg-success' : 'bg-warning' }} me-3">
+                            {{ story.isPublished ? 'Publiée' : 'Brouillon' }}
+                        </span>
+                        <small class="text-muted">ID: {{ story.id }}</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Paragraphes ({{ story.paragraphs|length }})</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if story.paragraphs is empty %}
+                                <p class="text-muted">Aucun paragraphe créé pour le moment.</p>
+                            {% else %}
+                                <ul class="list-group list-group-flush">
+                                    {% for paragraph in story.paragraphs %}
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <strong>{{ paragraph.isStartParagraph ? '🏁 ' : '' }}{{ paragraph.content|slice(0, 50) }}{{ paragraph.content|length > 50 ? '...' : '' }}</strong>
+                                                {% if paragraph.isStartParagraph %}
+                                                    <span class="badge bg-primary ms-2">Départ</span>
+                                                {% endif %}
+                                            </div>
+                                            <small class="text-muted">ID: {{ paragraph.id }}</small>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Statistiques ({{ story.statDefinitions|length }})</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if story.statDefinitions is empty %}
+                                <p class="text-muted">Aucune statistique définie pour le moment.</p>
+                            {% else %}
+                                <ul class="list-group list-group-flush">
+                                    {% for stat in story.statDefinitions %}
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <span>{{ stat.name }}</span>
+                                            <span class="badge bg-secondary">{{ stat.initialValue }}</span>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <div class="alert alert-info">
+                    <h6>Prochaines étapes :</h6>
+                    <ul class="mb-0">
+                        <li>Ajouter des paragraphes à votre histoire</li>
+                        <li>Définir des statistiques pour le jeu</li>
+                        <li>Créer des choix entre les paragraphes</li>
+                        <li>Ajouter des conditions et actions aux choix</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
