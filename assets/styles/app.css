@@ -1,3 +1,168 @@
+
+
+
+/* Styles personnalisés pour La Forge du Livre */
+:root {
+    --bs-primary: #8B4513;      /* Marron foncé */
+    --bs-secondary: #D2691E;    /* Orange foncé */
+    --bs-success: #228B22;      /* Vert forêt */
+    --bs-info: #4682B4;         /* Bleu acier */
+    --bs-warning: #DAA520;      /* Or */
+    --bs-danger: #8B0000;       /* Rouge foncé */
+    --bs-dark: #2F4F4F;         /* Gris ardoise */
+    --bs-light: #F5F5DC;        /* Beige clair */
+}
+
 body {
-    background-color: skyblue;
+    background: linear-gradient(135deg, #2F4F4F 0%, #1a1a1a 100%);
+    color: #F5F5DC;
+    font-family: 'Georgia', serif;
+    min-height: 100vh;
+}
+
+/* Navbar personnalisée */
+.navbar-custom {
+    background: linear-gradient(90deg, #8B4513 0%, #D2691E 100%);
+    border-bottom: 3px solid #DAA520;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.navbar-custom .navbar-brand {
+    color: #DAA520 !important;
+    font-weight: bold;
+    font-size: 1.5rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.navbar-custom .navbar-nav .nav-link {
+    color: #F5F5DC !important;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.navbar-custom .navbar-nav .nav-link:hover {
+    color: #DAA520 !important;
+    transform: translateY(-2px);
+}
+
+/* Hero section */
+.hero-section {
+    background: linear-gradient(rgba(47, 79, 79, 0.8), rgba(26, 26, 26, 0.9)), 
+                url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="%23DAA520" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="%23DAA520" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="%23DAA520" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+    padding: 4rem 0;
+    text-align: center;
+    position: relative;
+}
+
+.hero-title {
+    font-size: 3.5rem;
+    font-weight: bold;
+    color: #DAA520;
+    text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.7);
+    margin-bottom: 1rem;
+}
+
+.hero-subtitle {
+    font-size: 1.3rem;
+    color: #F5F5DC;
+    margin-bottom: 2rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* Cards personnalisées */
+.card-custom {
+    background: linear-gradient(145deg, #3a5a5a 0%, #2F4F4F 100%);
+    border: 2px solid #DAA520;
+    border-radius: 15px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+    margin-bottom: 2rem;
+}
+
+.card-custom:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
+}
+
+.card-custom .card-header {
+    background: linear-gradient(90deg, #8B4513 0%, #D2691E 100%);
+    color: #F5F5DC;
+    border-bottom: 2px solid #DAA520;
+    border-radius: 13px 13px 0 0 !important;
+    font-weight: bold;
+}
+
+.card-custom .card-body {
+    color: #F5F5DC;
+}
+
+/* Boutons personnalisés */
+.btn-custom {
+    background: linear-gradient(45deg, #8B4513, #D2691E);
+    border: 2px solid #DAA520;
+    color: #F5F5DC;
+    font-weight: bold;
+    border-radius: 25px;
+    padding: 0.75rem 2rem;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.btn-custom:hover {
+    background: linear-gradient(45deg, #D2691E, #8B4513);
+    color: #DAA520;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Section features */
+.features-section {
+    padding: 4rem 0;
+    background: rgba(47, 79, 79, 0.3);
+}
+
+.feature-icon {
+    font-size: 3rem;
+    color: #DAA520;
+    margin-bottom: 1rem;
+}
+
+/* Footer */
+.footer-custom {
+    background: linear-gradient(90deg, #2F4F4F 0%, #1a1a1a 100%);
+    border-top: 3px solid #DAA520;
+    padding: 2rem 0;
+    margin-top: 4rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 2.5rem;
+    }
+    
+    .hero-subtitle {
+        font-size: 1.1rem;
+    }
+    
+    .navbar-custom .navbar-brand {
+        font-size: 1.2rem;
+    }
+}
+
+/* Animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in-up {
+    animation: fadeInUp 0.6s ease-out;
 }

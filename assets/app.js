@@ -7,4 +7,8 @@ import './bootstrap.js';
  */
 import './styles/app.css';
 
-console.log('This log comes from assets/app.js - welcome to AssetMapper! 🎉');
+// Importer Bootstrap CSS et JS
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap';
+
+console.log('La Forge du Livre - Bootstrap chargé via Asset Mapper ! 🎉');
