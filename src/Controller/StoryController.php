@@ -6,11 +6,13 @@ namespace App\Controller;
 
 use App\Entity\Story;
 use App\Repository\StoryRepository;
+use App\Service\CacheService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpKernel\Attribute\Cache;
 
 /**
  * Contrôleur pour la gestion des histoires
@@ -20,7 +22,8 @@ class StoryController extends AbstractController
 {
     public function __construct(
         private EntityManagerInterface $entityManager,
-        private StoryRepository $storyRepository
+        private StoryRepository $storyRepository,
+        private CacheService $cacheService
     ) {
     }
 
@@ -28,6 +31,7 @@ class StoryController extends AbstractController
      * Liste toutes les histoires
      */
     #[Route('/', name: 'app_story_index', methods: ['GET'])]
+    #[Cache(public: true, maxage: 180, smaxage: 180)]
     public function index(): Response
     {
         $stories = $this->storyRepository->findAll();
@@ -60,6 +64,9 @@ class StoryController extends AbstractController
             $this->entityManager->persist($story);
             $this->entityManager->flush();
 
+            // Invalider le cache de la liste des histoires
+            $this->cacheService->invalidateStoriesCache();
+
             $this->addFlash('success', 'Histoire créée avec succès !');
             return $this->redirectToRoute('app_story_index');
         }
@@ -71,6 +78,7 @@ class StoryController extends AbstractController
      * Affiche une histoire
      */
     #[Route('/{id}', name: 'app_story_show', methods: ['GET'])]
+    #[Cache(public: true, maxage: 600, smaxage: 600, vary: ['Accept-Encoding'])]
     public function show(Story $story): Response
     {
         return $this->render('story/show.html.twig', [
@@ -98,6 +106,10 @@ class StoryController extends AbstractController
 
             $this->entityManager->flush();
 
+            // Invalider le cache de l'histoire modifiée et de la liste
+            $this->cacheService->invalidateStoryCache($story->getId());
+            $this->cacheService->invalidateStoriesCache();
+
             $this->addFlash('success', 'Histoire modifiée avec succès !');
             return $this->redirectToRoute('app_story_index');
         }
@@ -114,8 +126,13 @@ class StoryController extends AbstractController
     public function delete(Request $request, Story $story): Response
     {
         if ($this->isCsrfTokenValid('delete' . $story->getId(), $request->request->get('_token'))) {
+            $storyId = $story->getId();
             $this->entityManager->remove($story);
             $this->entityManager->flush();
+
+            // Invalider le cache de l'histoire supprimée et de la liste
+            $this->cacheService->invalidateStoryCache($storyId);
+            $this->cacheService->invalidateStoriesCache();
 
             $this->addFlash('success', 'Histoire supprimée avec succès !');
         }

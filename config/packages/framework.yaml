@@ -5,6 +5,9 @@ framework:
     # Note that the session will be started ONLY if you read or write from it.
     session: true
 
+    # Configuration du cache HTTP
+    # Le cache HTTP se configure via les annotations dans les contrôleurs
+
     #esi: true
     #fragments: true
 
