@@ -9,7 +9,10 @@
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h1>{{ story.title }}</h1>
                 <div>
-                    <a href="{{ path('app_story_edit', {'id': story.id}) }}" class="btn btn-outline-secondary">
+                    <a href="{{ path('app_paragraph_index', {'storyId': story.id}) }}" class="btn btn-primary me-2">
+                        <i class="fas fa-paragraph"></i> Gérer les paragraphes
+                    </a>
+                    <a href="{{ path('app_story_edit', {'id': story.id}) }}" class="btn btn-outline-secondary me-2">
                         <i class="fas fa-edit"></i> Modifier
                     </a>
                     <a href="{{ path('app_story_index') }}" class="btn btn-outline-primary">

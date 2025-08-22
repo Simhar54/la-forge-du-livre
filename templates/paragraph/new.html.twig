@@ -1,0 +1,108 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouveau paragraphe - {{ story.title }}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h1 class="h3 mb-0">
+                                <i class="fas fa-plus-circle"></i> 
+                                Nouveau paragraphe
+                            </h1>
+                            <p class="text-muted mb-0">
+                                Histoire : "{{ story.title }}"
+                            </p>
+                        </div>
+                        <a href="{{ path('app_paragraph_index', {'storyId': story.id}) }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left"></i> Retour à la liste
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        <div class="mb-3">
+                            <label for="content" class="form-label">
+                                <i class="fas fa-edit"></i> Contenu du paragraphe
+                            </label>
+                            <textarea 
+                                id="content" 
+                                name="content" 
+                                class="form-control" 
+                                rows="10" 
+                                placeholder="Écrivez le contenu de votre paragraphe ici..."
+                                required
+                            ></textarea>
+                            <div class="form-text">
+                                <i class="fas fa-info-circle"></i> 
+                                Utilisez l'éditeur ci-dessus pour formater votre texte. Vous pouvez ajouter du gras, de l'italique, des listes, etc.
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="is_start_paragraph" name="is_start_paragraph">
+                                <label class="form-check-label" for="is_start_paragraph">
+                                    <i class="fas fa-play"></i> 
+                                    Ce paragraphe est le point de départ de l'histoire
+                                </label>
+                            </div>
+                            <div class="form-text">
+                                <i class="fas fa-info-circle"></i> 
+                                Cochez cette case si ce paragraphe doit être le premier que les joueurs verront. 
+                                Seul un paragraphe peut être le point de départ.
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ path('app_paragraph_index', {'storyId': story.id}) }}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Annuler
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Créer le paragraphe
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        tinymce.init({
+            selector: '#content',
+            plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount checklist mediaembed casechange export formatpainter pageembed linkchecker a11ychecker tinymcespellchecker permanentpen powerpaste advtable advcode editimage tinycomments tableofcontents footnotes mergetags autocorrect typography inlinecss',
+            toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat',
+            tinycomments_mode: 'embedded',
+            tinycomments_author: 'Author name',
+            mergetags_list: [
+                { value: 'First.Name', title: 'First Name' },
+                { value: 'Email', title: 'Email' },
+            ],
+            height: 400,
+            language: 'fr_FR',
+            menubar: false,
+            branding: false,
+            promotion: false,
+            content_style: 'body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; font-size: 14px; }',
+            setup: function(editor) {
+                editor.on('change', function() {
+                    editor.save();
+                });
+            }
+        });
+    </script>
+{% endblock %}

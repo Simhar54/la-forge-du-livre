@@ -1,0 +1,123 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Paragraphe #{{ paragraph.id }} - {{ story.title }}{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h1 class="h3 mb-0">
+                                <i class="fas fa-paragraph"></i> 
+                                Paragraphe #{{ paragraph.id }}
+                                {% if paragraph.isStartParagraph %}
+                                    <span class="badge bg-success ms-2">
+                                        <i class="fas fa-play"></i> Point de départ
+                                    </span>
+                                {% endif %}
+                            </h1>
+                            <p class="text-muted mb-0">
+                                Histoire : "{{ story.title }}"
+                            </p>
+                        </div>
+                        <div>
+                            <a href="{{ path('app_paragraph_edit', {'storyId': story.id, 'id': paragraph.id}) }}" class="btn btn-warning me-2">
+                                <i class="fas fa-edit"></i> Modifier
+                            </a>
+                            <a href="{{ path('app_paragraph_index', {'storyId': story.id}) }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left"></i> Retour à la liste
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="paragraph-content mb-4">
+                        <h5 class="card-title mb-3">
+                            <i class="fas fa-file-text"></i> Contenu
+                        </h5>
+                        <div class="border rounded p-3 bg-light">
+                            {{ paragraph.content|raw }}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6 class="mb-0">
+                                        <i class="fas fa-link"></i> Choix sortants
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    {% if paragraph.sourceChoices is empty %}
+                                        <p class="text-muted mb-0">
+                                            <i class="fas fa-info-circle"></i> 
+                                            Aucun choix sortant défini
+                                        </p>
+                                    {% else %}
+                                        <ul class="list-group list-group-flush">
+                                            {% for choice in paragraph.sourceChoices %}
+                                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                    <span>{{ choice.text }}</span>
+                                                    <span class="badge bg-primary rounded-pill">
+                                                        → Paragraphe #{{ choice.destinationParagraph.id }}
+                                                    </span>
+                                                </li>
+                                            {% endfor %}
+                                        </ul>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6 class="mb-0">
+                                        <i class="fas fa-link"></i> Choix entrants
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    {% if paragraph.destinationChoices is empty %}
+                                        <p class="text-muted mb-0">
+                                            <i class="fas fa-info-circle"></i> 
+                                            Aucun choix entrant défini
+                                        </p>
+                                    {% else %}
+                                        <ul class="list-group list-group-flush">
+                                            {% for choice in paragraph.destinationChoices %}
+                                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                    <span>{{ choice.text }}</span>
+                                                    <span class="badge bg-secondary rounded-pill">
+                                                        ← Paragraphe #{{ choice.sourceParagraph.id }}
+                                                    </span>
+                                                </li>
+                                            {% endfor %}
+                                        </ul>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <div class="alert alert-info">
+                            <h6 class="alert-heading">
+                                <i class="fas fa-lightbulb"></i> Prochaines étapes
+                            </h6>
+                            <ul class="mb-0">
+                                <li>Créez des choix pour lier ce paragraphe à d'autres paragraphes</li>
+                                <li>Définissez des conditions pour afficher certains choix</li>
+                                <li>Ajoutez des actions pour modifier les statistiques du joueur</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
