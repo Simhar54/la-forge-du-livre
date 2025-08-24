@@ -1,0 +1,243 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouveau choix - {{ story.title }}{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="{{ path('app_home') }}" class="text-warning">
+                            <i class="fas fa-home"></i> Accueil
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="{{ path('app_story_show', {'id': story.id}) }}" class="text-warning">
+                            {{ story.title }}
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="{{ path('app_story_show', {'id': story.id}) }}" class="text-warning">
+                            {{ story.title }}
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="{{ path('app_paragraph_show', {'storyId': story.id, 'id': paragraph.id}) }}" class="text-warning">
+                            Paragraphe #{{ paragraph.id }}
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="{{ path('app_choice_index', {'storyId': story.id, 'paragraphId': paragraph.id}) }}" class="text-warning">
+                            Choix
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">Nouveau choix</li>
+                </ol>
+            </nav>
+
+            <!-- Header -->
+            <div class="text-center mb-4">
+                <h1 class="text-warning">
+                    <i class="fas fa-plus-circle"></i> Nouveau choix
+                </h1>
+                <p class="lead text-light">
+                    <strong>Histoire :</strong> {{ story.title }} | 
+                    <strong>Paragraphe #{{ paragraph.id }}</strong>
+                </p>
+            </div>
+
+            <!-- Aperçu du paragraphe source -->
+            <div class="card card-custom mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-file-alt"></i> Paragraphe source
+                        {% if paragraph.isStartParagraph %}
+                            <span class="badge bg-success ms-2">Paragraphe de départ</span>
+                        {% endif %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="paragraph-content">
+                        {{ paragraph.content|raw }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formulaire -->
+            <div class="card card-custom">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-fork"></i> Créer un nouveau choix
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        <div class="mb-4">
+                            <label for="text" class="form-label text-light">
+                                <i class="fas fa-comment"></i> <strong>Texte du choix</strong>
+                            </label>
+                            <textarea class="form-control" id="text" name="text" rows="3" 
+                                      placeholder="Ex: Si vous voulez aller à gauche, cliquez ici" required></textarea>
+                            <div class="form-text text-muted">
+                                <i class="fas fa-lightbulb"></i> 
+                                <strong>Conseil :</strong> Utilisez des phrases claires et descriptives comme 
+                                "Si vous voulez explorer la cave, cliquez ici" ou "Si vous préférez rester dehors, cliquez ici"
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label text-light">
+                                <i class="fas fa-arrow-right"></i> <strong>Paragraphe de destination</strong>
+                            </label>
+                            
+                            <!-- Onglets pour choisir le mode -->
+                            <ul class="nav nav-tabs mb-3" id="destinationTabs" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="existing-tab" data-bs-toggle="tab" data-bs-target="#existing" type="button" role="tab">
+                                        <i class="fas fa-list"></i> Paragraphe existant
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="new-tab" data-bs-toggle="tab" data-bs-target="#new" type="button" role="tab">
+                                        <i class="fas fa-plus"></i> Créer un nouveau paragraphe
+                                    </button>
+                                </li>
+                            </ul>
+                            
+                            <div class="tab-content" id="destinationTabContent">
+                                <!-- Onglet paragraphe existant -->
+                                <div class="tab-pane fade show active" id="existing" role="tabpanel">
+                                    <select class="form-select" id="destination_paragraph_id" name="destination_paragraph_id">
+                                        <option value="">Choisissez le paragraphe de destination...</option>
+                                        {% for destParagraph in allParagraphs %}
+                                            {% if destParagraph.id != paragraph.id %}
+                                                <option value="{{ destParagraph.id }}">
+                                                    Paragraphe #{{ destParagraph.id }}
+                                                    {% if destParagraph.isStartParagraph %}
+                                                        (Paragraphe de départ)
+                                                    {% endif %}
+                                                    - {{ destParagraph.content|striptags|slice(0, 50) }}...
+                                                </option>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </select>
+                                    <div class="form-text text-muted">
+                                        <i class="fas fa-info-circle"></i> 
+                                        Sélectionnez un paragraphe existant vers lequel ce choix mènera le lecteur
+                                    </div>
+                                </div>
+                                
+                                <!-- Onglet nouveau paragraphe -->
+                                <div class="tab-pane fade" id="new" role="tabpanel">
+                                    <div class="alert alert-info">
+                                        <i class="fas fa-lightbulb"></i>
+                                        <strong>Création rapide :</strong> Vous allez créer un nouveau paragraphe et ce choix y mènera automatiquement.
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="new_paragraph_content" class="form-label text-light">
+                                            <i class="fas fa-file-alt"></i> <strong>Contenu du nouveau paragraphe</strong>
+                                        </label>
+                                        <textarea class="form-control" id="new_paragraph_content" name="new_paragraph_content" rows="6" 
+                                                  placeholder="Écrivez le contenu du nouveau paragraphe ici..."></textarea>
+                                        <div class="form-text text-muted">
+                                            <i class="fas fa-info-circle"></i> 
+                                            Ce sera le contenu du paragraphe vers lequel ce choix mènera
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="is_start_paragraph" name="is_start_paragraph">
+                                            <label class="form-check-label text-light" for="is_start_paragraph">
+                                                <i class="fas fa-play"></i> Marquer comme paragraphe de départ
+                                            </label>
+                                        </div>
+                                        <div class="form-text text-muted">
+                                            <i class="fas fa-info-circle"></i> 
+                                            Cochez cette case si ce paragraphe doit être le point de départ de l'histoire
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Aperçu des paragraphes disponibles -->
+                        <div class="mb-4">
+                            <h6 class="text-warning">
+                                <i class="fas fa-list"></i> Paragraphes disponibles pour la destination
+                            </h6>
+                            <div class="row">
+                                {% for destParagraph in allParagraphs %}
+                                    {% if destParagraph.id != paragraph.id %}
+                                        <div class="col-md-6 mb-2">
+                                            <div class="card" style="background: rgba(245, 245, 220, 0.1); border: 1px solid rgba(218, 165, 32, 0.3);">
+                                                <div class="card-body p-2">
+                                                    <h6 class="card-title text-warning mb-1">
+                                                        Paragraphe #{{ destParagraph.id }}
+                                                        {% if destParagraph.isStartParagraph %}
+                                                            <span class="badge bg-success ms-1">Départ</span>
+                                                        {% endif %}
+                                                    </h6>
+                                                    <p class="card-text text-light small mb-0">
+                                                        {{ destParagraph.content|striptags|slice(0, 80) }}{% if destParagraph.content|length > 80 %}...{% endif %}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ path('app_choice_index', {'storyId': story.id, 'paragraphId': paragraph.id}) }}" 
+                               class="btn btn-outline-light">
+                                <i class="fas fa-arrow-left"></i> Annuler
+                            </a>
+                            <button type="submit" class="btn btn-custom">
+                                <i class="fas fa-save"></i> Créer le choix
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Conseils -->
+            <div class="card card-custom mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-lightbulb"></i> Conseils pour créer un bon choix
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-warning">✅ À faire :</h6>
+                            <ul class="text-light">
+                                <li>Utilisez des phrases claires et descriptives</li>
+                                <li>Donnez des indices sur ce qui va se passer</li>
+                                <li>Créez des choix significatifs et différents</li>
+                                <li>Évitez les choix trop évidents</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-warning">❌ À éviter :</h6>
+                            <ul class="text-light">
+                                <li>Les phrases trop vagues</li>
+                                <li>Les choix qui mènent au même endroit</li>
+                                <li>Les textes trop longs</li>
+                                <li>Les choix sans conséquence</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

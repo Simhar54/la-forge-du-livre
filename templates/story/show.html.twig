@@ -6,27 +6,10 @@
 <div class="container mt-4">
     <div class="row">
         <div class="col-12">
+            <!-- En-tête avec actions principales -->
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h1>{{ story.title }}</h1>
                 <div>
-                    <a href="{{ path('app_paragraph_index', {'storyId': story.id}) }}" class="btn btn-primary me-2">
-                        <i class="fas fa-paragraph"></i> Gérer les paragraphes
-                    </a>
-                    <a href="{{ path('app_story_edit', {'id': story.id}) }}" class="btn btn-outline-secondary me-2">
-                        <i class="fas fa-edit"></i> Modifier
-                    </a>
-                    <a href="{{ path('app_story_index') }}" class="btn btn-outline-primary">
-                        <i class="fas fa-arrow-left"></i> Retour
-                    </a>
-                </div>
-            </div>
-
-            <div class="card mb-4">
-                <div class="card-body">
-                    {% if story.description %}
-                        <p class="lead">{{ story.description }}</p>
-                    {% endif %}
-                    
+                    <h1 class="mb-1">{{ story.title }}</h1>
                     <div class="d-flex align-items-center">
                         <span class="badge {{ story.isPublished ? 'bg-success' : 'bg-warning' }} me-3">
                             {{ story.isPublished ? 'Publiée' : 'Brouillon' }}
@@ -34,71 +17,305 @@
                         <small class="text-muted">ID: {{ story.id }}</small>
                     </div>
                 </div>
+                <div>
+                    <a href="{{ path('app_paragraph_new', {'storyId': story.id}) }}" class="btn btn-success me-2">
+                        <i class="fas fa-plus"></i> Nouveau paragraphe
+                    </a>
+                    <a href="{{ path('app_story_edit', {'id': story.id}) }}" class="btn btn-outline-secondary me-2">
+                        <i class="fas fa-edit"></i> Modifier l'histoire
+                    </a>
+                    <a href="{{ path('app_story_show', {'id': story.id}) }}" class="btn btn-outline-info me-2" title="Actualiser la page">
+                        <i class="fas fa-sync-alt"></i> Actualiser
+                    </a>
+                                         <a href="{{ path('app_home') }}" class="btn btn-outline-primary">
+                         <i class="fas fa-arrow-left"></i> Retour
+                     </a>
+                </div>
             </div>
 
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="mb-0">Paragraphes ({{ story.paragraphs|length }})</h5>
-                        </div>
-                        <div class="card-body">
-                            {% if story.paragraphs is empty %}
-                                <p class="text-muted">Aucun paragraphe créé pour le moment.</p>
-                            {% else %}
-                                <ul class="list-group list-group-flush">
-                                    {% for paragraph in story.paragraphs %}
-                                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <strong>{{ paragraph.isStartParagraph ? '🏁 ' : '' }}{{ paragraph.content|slice(0, 50) }}{{ paragraph.content|length > 50 ? '...' : '' }}</strong>
-                                                {% if paragraph.isStartParagraph %}
-                                                    <span class="badge bg-primary ms-2">Départ</span>
-                                                {% endif %}
+            <!-- Description de l'histoire -->
+            {% if story.description %}
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <p class="lead mb-0">{{ story.description }}</p>
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Vue arborescente de l'histoire -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-sitemap"></i> Vue arborescente de l'histoire
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="story-tree">
+                        <!-- Paragraphe de départ -->
+                        {% set startParagraph = story.paragraphs|filter(p => p.isStartParagraph)|first %}
+                        {% if startParagraph %}
+                            <div class="tree-node tree-start">
+                                <div class="tree-content">
+                                    <div class="tree-paragraph">
+                                        <div class="tree-paragraph-header">
+                                            <span class="tree-badge tree-start-badge">
+                                                <i class="fas fa-play"></i> Départ
+                                            </span>
+                                            <span class="tree-paragraph-id">#{{ startParagraph.id }}</span>
+                                        </div>
+                                        <div class="tree-paragraph-content">
+                                            {{ startParagraph.content|striptags|slice(0, 100) }}{% if startParagraph.content|length > 100 %}...{% endif %}
+                                        </div>
+                                        <div class="tree-paragraph-actions">
+                                            <a href="{{ path('app_paragraph_show', {'storyId': story.id, 'id': startParagraph.id}) }}" 
+                                               class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-eye"></i> Voir
+                                            </a>
+                                            <a href="{{ path('app_paragraph_edit', {'storyId': story.id, 'id': startParagraph.id}) }}" 
+                                               class="btn btn-sm btn-outline-warning">
+                                                <i class="fas fa-edit"></i> Modifier
+                                            </a>
+                                            <a href="{{ path('app_choice_new', {'storyId': story.id, 'paragraphId': startParagraph.id}) }}" 
+                                               class="btn btn-sm btn-outline-success">
+                                                <i class="fas fa-plus"></i> Choix
+                                            </a>
+                                            <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#deleteParagraphModal{{ startParagraph.id }}">
+                                                <i class="fas fa-trash"></i> Supprimer
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Choix du paragraphe de départ -->
+                                {% if startParagraph.sourceChoices|length > 0 %}
+                                    <div class="tree-branches">
+                                        {% for choice in startParagraph.sourceChoices %}
+                                            <div class="tree-branch">
+                                                <div class="tree-choice">
+                                                    <i class="fas fa-arrow-right"></i>
+                                                    <span class="tree-choice-text">{{ choice.text }}</span>
+                                                    <button type="button" class="btn btn-sm btn-outline-danger ms-2" 
+                                                            data-bs-toggle="modal" 
+                                                            data-bs-target="#deleteChoiceModal{{ choice.id }}">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                                
+                                                <!-- Paragraphe de destination -->
+                                                <div class="tree-node">
+                                                    <div class="tree-content">
+                                                        <div class="tree-paragraph">
+                                                            <div class="tree-paragraph-header">
+                                                                <span class="tree-paragraph-id">#{{ choice.destinationParagraph.id }}</span>
+                                                            </div>
+                                                            <div class="tree-paragraph-content">
+                                                                {{ choice.destinationParagraph.content|striptags|slice(0, 80) }}{% if choice.destinationParagraph.content|length > 80 %}...{% endif %}
+                                                            </div>
+                                                            <div class="tree-paragraph-actions">
+                                                                <a href="{{ path('app_paragraph_show', {'storyId': story.id, 'id': choice.destinationParagraph.id}) }}" 
+                                                                   class="btn btn-sm btn-outline-primary">
+                                                                    <i class="fas fa-eye"></i> Voir
+                                                                </a>
+                                                                <a href="{{ path('app_paragraph_edit', {'storyId': story.id, 'id': choice.destinationParagraph.id}) }}" 
+                                                                   class="btn btn-sm btn-outline-warning">
+                                                                    <i class="fas fa-edit"></i> Modifier
+                                                                </a>
+                                                                <a href="{{ path('app_choice_new', {'storyId': story.id, 'paragraphId': choice.destinationParagraph.id}) }}" 
+                                                                   class="btn btn-sm btn-outline-success">
+                                                                    <i class="fas fa-plus"></i> Choix
+                                                                </a>
+                                                                <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                                        data-bs-toggle="modal" 
+                                                                        data-bs-target="#deleteParagraphModal{{ choice.destinationParagraph.id }}">
+                                                                    <i class="fas fa-trash"></i> Supprimer
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <!-- Choix de ce paragraphe (niveau 2) -->
+                                                    {% if choice.destinationParagraph.sourceChoices|length > 0 %}
+                                                        <div class="tree-branches">
+                                                            {% for subChoice in choice.destinationParagraph.sourceChoices %}
+                                                                <div class="tree-branch">
+                                                                    <div class="tree-choice">
+                                                                        <i class="fas fa-arrow-right"></i>
+                                                                        <span class="tree-choice-text">{{ subChoice.text }}</span>
+                                                                        <button type="button" class="btn btn-sm btn-outline-danger ms-2" 
+                                                                                data-bs-toggle="modal" 
+                                                                                data-bs-target="#deleteChoiceModal{{ subChoice.id }}">
+                                                                            <i class="fas fa-trash"></i>
+                                                                        </button>
+                                                                    </div>
+                                                                    
+                                                                    <!-- Paragraphe de destination (niveau 2) -->
+                                                                    <div class="tree-node">
+                                                                        <div class="tree-content">
+                                                                            <div class="tree-paragraph">
+                                                                                <div class="tree-paragraph-header">
+                                                                                    <span class="tree-paragraph-id">#{{ subChoice.destinationParagraph.id }}</span>
+                                                                                </div>
+                                                                                <div class="tree-paragraph-content">
+                                                                                    {{ subChoice.destinationParagraph.content|striptags|slice(0, 60) }}{% if subChoice.destinationParagraph.content|length > 60 %}...{% endif %}
+                                                                                </div>
+                                                                                <div class="tree-paragraph-actions">
+                                                                                    <a href="{{ path('app_paragraph_show', {'storyId': story.id, 'id': subChoice.destinationParagraph.id}) }}" 
+                                                                                       class="btn btn-sm btn-outline-primary">
+                                                                                        <i class="fas fa-eye"></i> Voir
+                                                                                    </a>
+                                                                                    <a href="{{ path('app_paragraph_edit', {'storyId': story.id, 'id': subChoice.destinationParagraph.id}) }}" 
+                                                                                       class="btn btn-sm btn-outline-warning">
+                                                                                        <i class="fas fa-edit"></i> Modifier
+                                                                                    </a>
+                                                                                    <a href="{{ path('app_choice_new', {'storyId': story.id, 'paragraphId': subChoice.destinationParagraph.id}) }}" 
+                                                                                       class="btn btn-sm btn-outline-success">
+                                                                                        <i class="fas fa-plus"></i> Choix
+                                                                                    </a>
+                                                                                    <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                                                            data-bs-toggle="modal" 
+                                                                                            data-bs-target="#deleteParagraphModal{{ subChoice.destinationParagraph.id }}">
+                                                                                        <i class="fas fa-trash"></i> Supprimer
+                                                                                    </button>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            {% endfor %}
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
                                             </div>
-                                            <small class="text-muted">ID: {{ paragraph.id }}</small>
-                                        </li>
-                                    {% endfor %}
-                                </ul>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-6">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="mb-0">Statistiques ({{ story.statDefinitions|length }})</h5>
-                        </div>
-                        <div class="card-body">
-                            {% if story.statDefinitions is empty %}
-                                <p class="text-muted">Aucune statistique définie pour le moment.</p>
-                            {% else %}
-                                <ul class="list-group list-group-flush">
-                                    {% for stat in story.statDefinitions %}
-                                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                                            <span>{{ stat.name }}</span>
-                                            <span class="badge bg-secondary">{{ stat.initialValue }}</span>
-                                        </li>
-                                    {% endfor %}
-                                </ul>
-                            {% endif %}
-                        </div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% else %}
+                            <div class="text-center py-3">
+                                <i class="fas fa-exclamation-triangle text-warning mb-2" style="font-size: 2rem;"></i>
+                                <p class="text-muted">Aucun paragraphe de départ défini pour cette histoire.</p>
+                                <a href="{{ path('app_paragraph_new', {'storyId': story.id}) }}" class="btn btn-success">
+                                    <i class="fas fa-plus"></i> Créer le premier paragraphe
+                                </a>
+                            </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>
 
-            <div class="mt-4">
-                <div class="alert alert-info">
-                    <h6>Prochaines étapes :</h6>
-                    <ul class="mb-0">
-                        <li>Ajouter des paragraphes à votre histoire</li>
-                        <li>Définir des statistiques pour le jeu</li>
-                        <li>Créer des choix entre les paragraphes</li>
-                        <li>Ajouter des conditions et actions aux choix</li>
-                    </ul>
+
+
+            <!-- Statistiques -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-bar"></i> Statistiques ({{ story.statDefinitions|length }})
+                    </h5>
                 </div>
+                <div class="card-body">
+                    {% if story.statDefinitions is empty %}
+                        <p class="text-muted">Aucune statistique définie pour le moment.</p>
+                    {% else %}
+                        <div class="row">
+                            {% for stat in story.statDefinitions %}
+                                <div class="col-md-6 col-lg-4 mb-2">
+                                    <div class="d-flex justify-content-between align-items-center p-2 border rounded">
+                                        <span>{{ stat.name }}</span>
+                                        <span class="badge bg-secondary">{{ stat.initialValue }}</span>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Prochaines étapes -->
+            <div class="alert alert-info">
+                <h6 class="alert-heading">
+                    <i class="fas fa-lightbulb"></i> Prochaines étapes
+                </h6>
+                <ul class="mb-0">
+                    <li>Créez des paragraphes pour développer votre histoire</li>
+                    <li>Ajoutez des choix entre les paragraphes</li>
+                    <li>Définissez des statistiques pour le jeu</li>
+                    <li>Ajoutez des conditions et actions aux choix</li>
+                </ul>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Modals de suppression des paragraphes -->
+{% for paragraph in story.paragraphs %}
+    <div class="modal fade" id="deleteParagraphModal{{ paragraph.id }}" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirmer la suppression</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Êtes-vous sûr de vouloir supprimer le paragraphe <strong>#{{ paragraph.id }}</strong> ?</p>
+                    <p class="text-danger">
+                        <i class="fas fa-exclamation-triangle"></i> 
+                        Cette action est irréversible et supprimera :
+                    </p>
+                    <ul class="text-danger">
+                        <li>Le paragraphe lui-même</li>
+                        <li>Tous les choix qui pointent vers ce paragraphe</li>
+                        <li>Tous les choix qui partent de ce paragraphe</li>
+                    </ul>
+                    <div class="alert alert-warning">
+                        <strong>Contenu du paragraphe :</strong><br>
+                        {{ paragraph.content|striptags|slice(0, 150) }}{% if paragraph.content|length > 150 %}...{% endif %}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <form method="post" action="{{ path('app_paragraph_delete', {'storyId': story.id, 'id': paragraph.id}) }}" style="display: inline;">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ paragraph.id) }}">
+                        <button type="submit" class="btn btn-danger">Supprimer</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endfor %}
+
+<!-- Modals de suppression des choix -->
+{% for paragraph in story.paragraphs %}
+    {% for choice in paragraph.sourceChoices %}
+        <div class="modal fade" id="deleteChoiceModal{{ choice.id }}" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Confirmer la suppression</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Êtes-vous sûr de vouloir supprimer ce choix ?</p>
+                        <div class="alert alert-warning">
+                            <strong>Texte du choix :</strong><br>
+                            "{{ choice.text }}"
+                        </div>
+                        <p class="text-danger">
+                            <i class="fas fa-exclamation-triangle"></i> 
+                            Cette action est irréversible.
+                        </p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                        <form method="post" action="{{ path('app_choice_delete', {'storyId': story.id, 'paragraphId': paragraph.id, 'id': choice.id}) }}" style="display: inline;">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ choice.id) }}">
+                            <button type="submit" class="btn btn-danger">Supprimer</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+{% endfor %}
 {% endblock %}

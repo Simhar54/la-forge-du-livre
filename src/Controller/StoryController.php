@@ -27,11 +27,12 @@ class StoryController extends AbstractController
     ) {
     }
 
+
+
     /**
      * Liste toutes les histoires
      */
     #[Route('/', name: 'app_story_index', methods: ['GET'])]
-    #[Cache(public: true, maxage: 180, smaxage: 180)]
     public function index(): Response
     {
         $stories = $this->storyRepository->findAll();
@@ -68,7 +69,7 @@ class StoryController extends AbstractController
             $this->cacheService->invalidateStoriesCache();
 
             $this->addFlash('success', 'Histoire créée avec succès !');
-            return $this->redirectToRoute('app_story_index');
+            return $this->redirectToRoute('app_story_show', ['id' => $story->getId()]);
         }
 
         return $this->render('story/new.html.twig');
@@ -78,9 +79,11 @@ class StoryController extends AbstractController
      * Affiche une histoire
      */
     #[Route('/{id}', name: 'app_story_show', methods: ['GET'])]
-    #[Cache(public: true, maxage: 600, smaxage: 600, vary: ['Accept-Encoding'])]
     public function show(Story $story): Response
     {
+        // Charger explicitement les paragraphes avec leurs relations pour éviter les problèmes de cache
+        $this->entityManager->refresh($story);
+        
         return $this->render('story/show.html.twig', [
             'story' => $story,
         ]);
@@ -111,7 +114,7 @@ class StoryController extends AbstractController
             $this->cacheService->invalidateStoriesCache();
 
             $this->addFlash('success', 'Histoire modifiée avec succès !');
-            return $this->redirectToRoute('app_story_index');
+            return $this->redirectToRoute('app_story_show', ['id' => $story->getId()]);
         }
 
         return $this->render('story/edit.html.twig', [
@@ -137,6 +140,6 @@ class StoryController extends AbstractController
             $this->addFlash('success', 'Histoire supprimée avec succès !');
         }
 
-        return $this->redirectToRoute('app_story_index');
+        return $this->redirectToRoute('app_home');
     }
 }

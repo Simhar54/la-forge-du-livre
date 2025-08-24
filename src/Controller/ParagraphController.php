@@ -6,6 +6,7 @@ namespace App\Controller;
 
 use App\Entity\Paragraph;
 use App\Entity\Story;
+use App\Entity\Choice;
 use App\Repository\ParagraphRepository;
 use App\Service\CacheService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -27,25 +28,7 @@ class ParagraphController extends AbstractController
     ) {
     }
 
-    /**
-     * Liste tous les paragraphes d'une histoire
-     */
-    #[Route('/', name: 'app_paragraph_index', methods: ['GET'])]
-    public function index(int $storyId): Response
-    {
-        $story = $this->entityManager->getRepository(Story::class)->find($storyId);
-        
-        if (!$story) {
-            throw $this->createNotFoundException('Histoire non trouvée');
-        }
 
-        $paragraphs = $this->paragraphRepository->findBy(['story' => $story], ['id' => 'ASC']);
-
-        return $this->render('paragraph/index.html.twig', [
-            'story' => $story,
-            'paragraphs' => $paragraphs,
-        ]);
-    }
 
     /**
      * Crée un nouveau paragraphe
@@ -93,7 +76,7 @@ class ParagraphController extends AbstractController
             $this->cacheService->invalidateStoryCache($storyId);
 
             $this->addFlash('success', 'Paragraphe créé avec succès !');
-            return $this->redirectToRoute('app_paragraph_index', ['storyId' => $storyId]);
+            return $this->redirectToRoute('app_story_show', ['id' => $storyId]);
         }
 
         return $this->render('paragraph/new.html.twig', [
@@ -163,7 +146,7 @@ class ParagraphController extends AbstractController
             $this->cacheService->invalidateStoryCache($storyId);
 
             $this->addFlash('success', 'Paragraphe modifié avec succès !');
-            return $this->redirectToRoute('app_paragraph_index', ['storyId' => $storyId]);
+            return $this->redirectToRoute('app_story_show', ['id' => $storyId]);
         }
 
         return $this->render('paragraph/edit.html.twig', [
@@ -186,15 +169,25 @@ class ParagraphController extends AbstractController
         if ($this->isCsrfTokenValid('delete' . $paragraph->getId(), $request->request->get('_token'))) {
             $paragraphId = $paragraph->getId();
             
+            // Supprimer d'abord tous les choix qui pointent vers ce paragraphe comme destination
+            $choicesToDelete = $this->entityManager->getRepository(\App\Entity\Choice::class)->findBy([
+                'destinationParagraph' => $paragraph
+            ]);
+            
+            foreach ($choicesToDelete as $choice) {
+                $this->entityManager->remove($choice);
+            }
+            
+            // Supprimer ensuite le paragraphe
             $this->entityManager->remove($paragraph);
             $this->entityManager->flush();
 
             // Invalider le cache de l'histoire
             $this->cacheService->invalidateStoryCache($storyId);
 
-            $this->addFlash('success', 'Paragraphe supprimé avec succès !');
+            $this->addFlash('success', 'Paragraphe et choix associés supprimés avec succès !');
         }
 
-        return $this->redirectToRoute('app_paragraph_index', ['storyId' => $storyId]);
+        return $this->redirectToRoute('app_story_show', ['id' => $storyId]);
     }
 }

@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use App\Repository\ConditionRepository;
+use App\Repository\ChoiceConditionRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * Entité représentant une condition pour afficher un choix
  */
-#[ORM\Entity(repositoryClass: ConditionRepository::class)]
-class Condition
+#[ORM\Entity(repositoryClass: ChoiceConditionRepository::class)]
+#[ORM\Table(name: 'choice_condition')]
+class ChoiceCondition
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]

@@ -1,70 +1,118 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Gestion des Histoires{% endblock %}
+{% block title %}Mes Histoires - La Forge du Livre{% endblock %}
 
 {% block body %}
 <div class="container mt-4">
     <div class="row">
         <div class="col-12">
+            <!-- Header -->
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h1>Gestion des Histoires</h1>
-                <a href="{{ path('app_story_new') }}" class="btn btn-primary">
+                <div>
+                    <h1 class="text-warning">
+                        <i class="fas fa-book-open"></i> Mes Histoires
+                    </h1>
+                    <p class="lead text-light">
+                        Gérez et créez vos histoires interactives
+                    </p>
+                </div>
+                <a href="{{ path('app_story_new') }}" class="btn btn-custom btn-lg">
                     <i class="fas fa-plus"></i> Nouvelle Histoire
                 </a>
             </div>
 
-            {% for message in app.flashes('success') %}
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            {% endfor %}
-
-            {% for message in app.flashes('error') %}
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            {% endfor %}
-
+            <!-- Liste des histoires -->
             {% if stories is empty %}
-                <div class="alert alert-info">
-                    <p class="mb-0">Aucune histoire n'a été créée pour le moment.</p>
-                    <p class="mb-0">Cliquez sur "Nouvelle Histoire" pour commencer !</p>
+                <div class="text-center py-5">
+                    <i class="fas fa-book-open text-muted mb-4" style="font-size: 4rem;"></i>
+                    <h3 class="text-light mb-3">Aucune histoire créée</h3>
+                    <p class="text-muted mb-4">
+                        Commencez par créer votre première histoire interactive !
+                    </p>
+                    <a href="{{ path('app_story_new') }}" class="btn btn-custom btn-lg">
+                        <i class="fas fa-plus"></i> Créer ma première histoire
+                    </a>
                 </div>
             {% else %}
                 <div class="row">
                     {% for story in stories %}
                         <div class="col-md-6 col-lg-4 mb-4">
-                            <div class="card h-100">
-                                <div class="card-body">
-                                    <h5 class="card-title">{{ story.title }}</h5>
-                                    {% if story.description %}
-                                        <p class="card-text text-muted">{{ story.description|length > 100 ? story.description|slice(0, 100) ~ '...' : story.description }}</p>
-                                    {% endif %}
-                                    <div class="d-flex align-items-center mb-3">
-                                        <span class="badge {{ story.isPublished ? 'bg-success' : 'bg-warning' }}">
-                                            {{ story.isPublished ? 'Publiée' : 'Brouillon' }}
-                                        </span>
+                            <div class="card card-custom h-100">
+                                <div class="card-header">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <h5 class="card-title mb-0 text-warning">
+                                            <i class="fas fa-book"></i> {{ story.title }}
+                                        </h5>
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                                <i class="fas fa-ellipsis-v"></i>
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                                <li>
+                                                    <a class="dropdown-item" href="{{ path('app_story_show', {'id': story.id}) }}">
+                                                        <i class="fas fa-eye"></i> Voir l'histoire
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a class="dropdown-item" href="{{ path('app_story_edit', {'id': story.id}) }}">
+                                                        <i class="fas fa-edit"></i> Modifier
+                                                    </a>
+                                                </li>
+                                                <li><hr class="dropdown-divider"></li>
+                                                <li>
+                                                    <button class="dropdown-item text-danger" 
+                                                            data-bs-toggle="modal" 
+                                                            data-bs-target="#deleteModal{{ story.id }}">
+                                                        <i class="fas fa-trash"></i> Supprimer
+                                                    </button>
+                                                </li>
+                                            </ul>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="card-footer bg-transparent">
-                                    <div class="btn-group w-100" role="group">
-                                        <a href="{{ path('app_story_show', {'id': story.id}) }}" class="btn btn-outline-primary btn-sm">
-                                            <i class="fas fa-eye"></i> Voir
+                                <div class="card-body">
+                                    {% if story.description %}
+                                        <p class="card-text text-light">
+                                            {{ story.description|slice(0, 100) }}{% if story.description|length > 100 %}...{% endif %}
+                                        </p>
+                                    {% else %}
+                                        <p class="text-muted">
+                                            <i class="fas fa-info-circle"></i> Aucune description
+                                        </p>
+                                    {% endif %}
+                                    
+                                    <div class="row text-center mt-3">
+                                        <div class="col-6">
+                                            <div class="border-end">
+                                                <h6 class="text-warning mb-1">{{ story.paragraphs|length }}</h6>
+                                                <small class="text-muted">Paragraphes</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <h6 class="text-warning mb-1">
+                                                {% if story.isPublished %}
+                                                    <i class="fas fa-check-circle text-success"></i>
+                                                {% else %}
+                                                    <i class="fas fa-clock text-warning"></i>
+                                                {% endif %}
+                                            </h6>
+                                            <small class="text-muted">
+                                                {% if story.isPublished %}Publiée{% else %}Brouillon{% endif %}
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-footer">
+                                    <div class="d-grid">
+                                        <a href="{{ path('app_story_show', {'id': story.id}) }}" class="btn btn-custom">
+                                            <i class="fas fa-sitemap"></i> Voir l'arbre
                                         </a>
-                                        <a href="{{ path('app_story_edit', {'id': story.id}) }}" class="btn btn-outline-secondary btn-sm">
-                                            <i class="fas fa-edit"></i> Modifier
-                                        </a>
-                                        <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal{{ story.id }}">
-                                            <i class="fas fa-trash"></i> Supprimer
-                                        </button>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Modal de confirmation de suppression -->
+                        <!-- Modal de suppression -->
                         <div class="modal fade" id="deleteModal{{ story.id }}" tabindex="-1">
                             <div class="modal-dialog">
                                 <div class="modal-content">
@@ -73,8 +121,11 @@
                                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                     </div>
                                     <div class="modal-body">
-                                        <p>Êtes-vous sûr de vouloir supprimer l'histoire "{{ story.title }}" ?</p>
-                                        <p class="text-danger"><small>Cette action est irréversible.</small></p>
+                                        <p>Êtes-vous sûr de vouloir supprimer l'histoire <strong>"{{ story.title }}"</strong> ?</p>
+                                        <p class="text-danger">
+                                            <i class="fas fa-exclamation-triangle"></i> 
+                                            Cette action est irréversible et supprimera tous les paragraphes et choix associés.
+                                        </p>
                                     </div>
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>

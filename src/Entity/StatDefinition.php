@@ -30,7 +30,7 @@ class StatDefinition
     #[ORM\JoinColumn(nullable: false)]
     private ?Story $story = null;
 
-    #[ORM\OneToMany(mappedBy: 'statDefinition', targetEntity: Condition::class)]
+    #[ORM\OneToMany(mappedBy: 'statDefinition', targetEntity: ChoiceCondition::class)]
     private Collection $conditions;
 
     #[ORM\OneToMany(mappedBy: 'statDefinition', targetEntity: Action::class)]
@@ -81,14 +81,14 @@ class StatDefinition
     }
 
     /**
-     * @return Collection<int, Condition>
+     * @return Collection<int, ChoiceCondition>
      */
     public function getConditions(): Collection
     {
         return $this->conditions;
     }
 
-    public function addCondition(Condition $condition): static
+    public function addCondition(ChoiceCondition $condition): static
     {
         if (!$this->conditions->contains($condition)) {
             $this->conditions->add($condition);
@@ -97,7 +97,7 @@ class StatDefinition
         return $this;
     }
 
-    public function removeCondition(Condition $condition): static
+    public function removeCondition(ChoiceCondition $condition): static
     {
         if ($this->conditions->removeElement($condition)) {
             if ($condition->getStatDefinition() === $this) {

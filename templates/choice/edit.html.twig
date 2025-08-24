@@ -1,0 +1,191 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier le choix - {{ story.title }}{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="{{ path('app_home') }}" class="text-warning">
+                            <i class="fas fa-home"></i> Accueil
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="{{ path('app_story_show', {'id': story.id}) }}" class="text-warning">
+                            {{ story.title }}
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="{{ path('app_story_show', {'id': story.id}) }}" class="text-warning">
+                            {{ story.title }}
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="{{ path('app_paragraph_show', {'storyId': story.id, 'id': paragraph.id}) }}" class="text-warning">
+                            Paragraphe #{{ paragraph.id }}
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="{{ path('app_choice_index', {'storyId': story.id, 'paragraphId': paragraph.id}) }}" class="text-warning">
+                            Choix
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">Modifier le choix</li>
+                </ol>
+            </nav>
+
+            <!-- Header -->
+            <div class="text-center mb-4">
+                <h1 class="text-warning">
+                    <i class="fas fa-edit"></i> Modifier le choix
+                </h1>
+                <p class="lead text-light">
+                    <strong>Histoire :</strong> {{ story.title }} | 
+                    <strong>Paragraphe #{{ paragraph.id }}</strong> | 
+                    <strong>Choix #{{ choice.id }}</strong>
+                </p>
+            </div>
+
+            <!-- Aperçu du paragraphe source -->
+            <div class="card card-custom mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-file-alt"></i> Paragraphe source
+                        {% if paragraph.isStartParagraph %}
+                            <span class="badge bg-success ms-2">Paragraphe de départ</span>
+                        {% endif %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="paragraph-content">
+                        {{ paragraph.content|raw }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formulaire -->
+            <div class="card card-custom">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-fork"></i> Modifier le choix
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        <div class="mb-4">
+                            <label for="text" class="form-label text-light">
+                                <i class="fas fa-comment"></i> <strong>Texte du choix</strong>
+                            </label>
+                            <textarea class="form-control" id="text" name="text" rows="3" 
+                                      placeholder="Ex: Si vous voulez aller à gauche, cliquez ici" required>{{ choice.text }}</textarea>
+                            <div class="form-text text-muted">
+                                <i class="fas fa-lightbulb"></i> 
+                                <strong>Conseil :</strong> Utilisez des phrases claires et descriptives comme 
+                                "Si vous voulez explorer la cave, cliquez ici" ou "Si vous préférez rester dehors, cliquez ici"
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="destination_paragraph_id" class="form-label text-light">
+                                <i class="fas fa-arrow-right"></i> <strong>Paragraphe de destination</strong>
+                            </label>
+                            <select class="form-select" id="destination_paragraph_id" name="destination_paragraph_id" required>
+                                <option value="">Choisissez le paragraphe de destination...</option>
+                                {% for destParagraph in allParagraphs %}
+                                    {% if destParagraph.id != paragraph.id %}
+                                        <option value="{{ destParagraph.id }}" 
+                                                {% if destParagraph.id == choice.destinationParagraph.id %}selected{% endif %}>
+                                            Paragraphe #{{ destParagraph.id }}
+                                            {% if destParagraph.isStartParagraph %}
+                                                (Paragraphe de départ)
+                                            {% endif %}
+                                            - {{ destParagraph.content|striptags|slice(0, 50) }}...
+                                        </option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                            <div class="form-text text-muted">
+                                <i class="fas fa-info-circle"></i> 
+                                Sélectionnez vers quel paragraphe ce choix mènera le lecteur
+                            </div>
+                        </div>
+
+                        <!-- Aperçu des paragraphes disponibles -->
+                        <div class="mb-4">
+                            <h6 class="text-warning">
+                                <i class="fas fa-list"></i> Paragraphes disponibles pour la destination
+                            </h6>
+                            <div class="row">
+                                {% for destParagraph in allParagraphs %}
+                                    {% if destParagraph.id != paragraph.id %}
+                                        <div class="col-md-6 mb-2">
+                                            <div class="card {% if destParagraph.id == choice.destinationParagraph.id %}border-warning{% endif %}" 
+                                                 style="background: rgba(245, 245, 220, 0.1); border: 1px solid {% if destParagraph.id == choice.destinationParagraph.id %}rgba(218, 165, 32, 0.8){% else %}rgba(218, 165, 32, 0.3){% endif %};">
+                                                <div class="card-body p-2">
+                                                    <h6 class="card-title text-warning mb-1">
+                                                        Paragraphe #{{ destParagraph.id }}
+                                                        {% if destParagraph.isStartParagraph %}
+                                                            <span class="badge bg-success ms-1">Départ</span>
+                                                        {% endif %}
+                                                        {% if destParagraph.id == choice.destinationParagraph.id %}
+                                                            <span class="badge bg-warning text-dark ms-1">Actuel</span>
+                                                        {% endif %}
+                                                    </h6>
+                                                    <p class="card-text text-light small mb-0">
+                                                        {{ destParagraph.content|striptags|slice(0, 80) }}{% if destParagraph.content|length > 80 %}...{% endif %}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ path('app_choice_index', {'storyId': story.id, 'paragraphId': paragraph.id}) }}" 
+                               class="btn btn-outline-light">
+                                <i class="fas fa-arrow-left"></i> Annuler
+                            </a>
+                            <button type="submit" class="btn btn-custom">
+                                <i class="fas fa-save"></i> Enregistrer les modifications
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Informations actuelles -->
+            <div class="card card-custom mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle"></i> Informations actuelles du choix
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-warning">Texte actuel :</h6>
+                            <p class="text-light">"{{ choice.text }}"</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-warning">Destination actuelle :</h6>
+                            <p class="text-light">
+                                Paragraphe #{{ choice.destinationParagraph.id }}
+                                {% if choice.destinationParagraph.isStartParagraph %}
+                                    <span class="badge bg-success ms-1">Départ</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
